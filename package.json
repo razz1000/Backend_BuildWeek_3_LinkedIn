@@ -1,0 +1,36 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-list-endpoints": "^6.0.0",
+    "http-errors": "^2.0.0",
+    "init": "^0.1.2",
+    "mongoose": "^6.3.5",
+    "query-to-mongo": "^0.10.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.1",
+    "nodemon": "^2.0.16"
+  },
+  "name": "backend_buildweek_3_linkedin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon -r dotenv/config ./src/server.js",
+    "start": "node ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/razz1000/Backend_BuildWeek_3_LinkedIn.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/razz1000/Backend_BuildWeek_3_LinkedIn/issues"
+  },
+  "homepage": "https://github.com/razz1000/Backend_BuildWeek_3_LinkedIn#readme",
+  "description": ""
+}
