@@ -7,6 +7,7 @@ import {
   genericErrorHandler,
   notFoundHandler,
 } from "./errorHandlers.js";
+import profileRouter from "./apis/profile/index.js";
 
 const server = express();
 const port = process.env.PORT || 3005;
@@ -38,6 +39,7 @@ server.use(express.json());
 //** ENDPOINTS **
 
 /* server.use("/userInfo", userInfoRouter); */
+server.use("/profile", profileRouter);
 
 // * ERROR HANDLERS **---------------------------
 
