@@ -6,7 +6,8 @@
     "http-errors": "^2.0.0",
     "init": "^0.1.2",
     "mongoose": "^6.3.5",
-    "query-to-mongo": "^0.10.2"
+    "query-to-mongo": "^0.10.2",
+    "unique-username-generator": "^1.1.1"
   },
   "devDependencies": {
     "dotenv": "^16.0.1",
