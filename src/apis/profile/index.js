@@ -6,7 +6,7 @@ import { pipeline } from "stream";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import ProfileModel from "./model.js";
 import ExperienceModel from "../experiences/model.js";
-import { getPDFReadableStream } from "../../lib/pdf-tools.js";
+import { getPdfReadableStream } from "../../lib/pdf-tools.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 
 const profileRouter = express.Router();
@@ -117,7 +117,7 @@ profileRouter.get("/:id/cv", async (req, res, next) => {
     const profile = await ProfileModel.findById(req.params.id);
     if (profile) {
       res.setHeader("Content-Type", "application/pdf");
-      const source = await getPDFReadableStream(profile);
+      const source = await getPdfReadableStream(profile);
       const destination = res;
 
       pipeline(source, destination, (err) => {
