@@ -56,4 +56,3 @@ mongoose.connection.on("connected", () => {
     console.log(`Server is running on port ${port}`);
   });
 });
-//
