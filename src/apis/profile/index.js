@@ -1,10 +1,30 @@
 import express from "express";
 import createError from "http-errors";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import ProfileModel from "./model.js";
 import ExperienceModel from "../experiences/model.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 
 const profileRouter = express.Router();
+
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "buildweek/linkdln/profile",
+    },
+  }),
+  fileFilter: (req, file, multerNext) => {
+    if (file.mimetype !== "image/jpeg") {
+      multerNext(createError(400, "Only jpeg allowed!"));
+    } else {
+      multerNext(null, true);
+    }
+  },
+  limits: { fileSize: 1 * 1024 * 1024 }, // file size
+}).single("image");
 
 profileRouter.get("/", async (req, res, next) => {
   try {
@@ -76,6 +96,17 @@ profileRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
+
+profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
+  try {
+    const postPicture = await ProfileModel.findByIdAndUpdate(
+      req.params.id,
+      { image: req.file.path },
+      { new: true, runValidators: true }
+    );
+    res.send(postPicture);
+  } catch (error) {
+
 //--------------EXPERIENCES----------------------
 
 //GET Experiences with User inside.
@@ -118,6 +149,7 @@ profileRouter.post("/:username/experiences", async (req, res, next) => {
     res.status(201).send({ _id });
   } catch (error) {
     console.log(error);
+
     next(error);
   }
 });

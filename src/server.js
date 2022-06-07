@@ -8,40 +8,47 @@ import {
   notFoundHandler,
 } from "./errorHandlers.js";
 import profileRouter from "./apis/profile/index.js";
+
+import postRouter from "./apis/posts/index.js";
+
 import experiencesRouter from "./apis/experiences/index.js";
 
 const server = express();
-const port = process.env.PORT || 3005;
+const port = process.env.PORTS || 3005;
 
-const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
+// const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 
-const corsOptions = {
-  origin: (origin, next) => {
-    console.log("CURRENT ORIGIN: ", origin);
+// const corsOptions = {
+//   origin: (origin, next) => {
+//     console.log("CURRENT ORIGIN: ", origin);
 
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      next(null, true);
-    } else {
-      next(
-        createError(
-          400,
-          `Cors Error! your origin ${origin} is not in the list!`
-        )
-      );
-    }
-  },
-};
+//     if (!origin || whitelist.indexOf(origin) !== -1) {
+//       next(null, true);
+//     } else {
+//       next(
+//         createError(
+//           400,
+//           `Cors Error! your origin ${origin} is not in the list!`
+//         )
+//       );
+//     }
+//   },
+// };
 
 // ** MIDDLEWARES ****---------------------------
 
-server.use(cors(corsOptions));
+server.use(cors());
 server.use(express.json());
 
 //** ENDPOINTS **
 
 /* server.use("/userInfo", userInfoRouter); */
 server.use("/profile", profileRouter);
+
+server.use("/posts", postRouter);
+
 server.use("/experience", experiencesRouter);
+
 
 // * ERROR HANDLERS **---------------------------
 
@@ -58,4 +65,3 @@ mongoose.connection.on("connected", () => {
     console.log(`Server is running on port ${port}`);
   });
 });
-//
