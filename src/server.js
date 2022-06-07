@@ -8,7 +8,10 @@ import {
   notFoundHandler,
 } from "./errorHandlers.js";
 import profileRouter from "./apis/profile/index.js";
+
 import postRouter from "./apis/posts/index.js";
+
+import experiencesRouter from "./apis/experiences/index.js";
 
 const server = express();
 const port = process.env.PORTS || 3005;
@@ -41,7 +44,11 @@ server.use(express.json());
 
 /* server.use("/userInfo", userInfoRouter); */
 server.use("/profile", profileRouter);
+
 server.use("/posts", postRouter);
+
+server.use("/experience", experiencesRouter);
+
 
 // * ERROR HANDLERS **---------------------------
 
