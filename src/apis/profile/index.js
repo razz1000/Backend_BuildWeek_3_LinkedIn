@@ -157,4 +157,107 @@ profileRouter.post("/:username/experiences", async (req, res, next) => {
   }
 });
 
+//GET ONE SPECIFIC EXPERIENCE
+profileRouter.get(
+  "/:username/experiences/:experienceId",
+  async (req, res, next) => {
+    try {
+      const username = req.params.username;
+      const experienceId = req.params.experienceId;
+      console.log("THIS IS THE USERNAME:", username);
+
+      const experience = await ExperienceModel.findById(
+        req.params.experienceId
+      );
+
+      if (!experience)
+        return next(
+          createError(
+            404,
+            `experience with id ${req.params.experienceId} not found!`
+          )
+        );
+      res.send(experience);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+
+//PUT ONE SPECIFIC EXPERIENCE
+profileRouter.put(
+  "/:username/experiences/:experienceId",
+  async (req, res, next) => {
+    try {
+      const updatedExperience = await ExperienceModel.findByIdAndUpdate(
+        req.params.experienceId,
+        req.body,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedExperience)
+        return next(
+          createError(
+            404,
+            `experience with id ${req.params.experienceId} not found!`
+          )
+        );
+      res.send(updatedExperience);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+
+//DELETE ONE SPECIFIC EXPERIENCE
+profileRouter.put(
+  "/:username/experiences/:experienceId",
+  async (req, res, next) => {
+    try {
+      const deletedExperience = await ExperienceModel.findByIdAndDelete(
+        req.params.experienceId
+      );
+
+      if (!deletedExperience)
+        return next(
+          createError(
+            404,
+            `experience with id ${req.params.experienceId} not found!`
+          )
+        );
+      res.send(deletedExperience);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+
+//CHANGE THE EXPERIENCES PICTURE
+profileRouter.post(
+  "/:username/experiences/:experienceId/picture",
+  async (req, res, next) => {
+    try {
+      const updatedExperiencesPicture = await ExperienceModel.findByIdAndUpdate(
+        req.params.experienceId,
+        req.body,
+        { new: true, runValidators: true }
+      );
+      if (!updatedExperiencesPicture)
+        return next(
+          createError(
+            404,
+            `experience with id ${req.params.experienceId} not found!`
+          )
+        );
+      res.send(updatedExperiencesPicture);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+
 export default profileRouter;
