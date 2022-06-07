@@ -6,6 +6,9 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import ProfileModel from "./model.js";
 import ExperienceModel from "../experiences/model.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
+import { getProductsReadableStream } from "../../lib/fs-tools.js";
+import json2csv from "json2csv";
+import { pipeline } from "stream";
 
 const profileRouter = express.Router();
 
@@ -259,5 +262,39 @@ profileRouter.post(
     }
   }
 );
+
+//GET Experiences IN A CSV
+
+profileRouter.get("/:username/experiences/csv", async (req, res, next) => {
+  try {
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=experiences.csv"
+    );
+    const username = req.params.username;
+    console.log("THIS IS THE USERNAME:", username);
+
+    const experience = await ProfileModel.findOne({
+      username,
+    });
+    console.log("EXPERIENCES: ", experience);
+
+    const index = experience.findIndex(
+      (e) => e.username === req.params.username
+    );
+    console.log("INDEX OF  :", index);
+    const actualExperience = experience[index];
+    const source = await getProductsReadableStream(actualExperience);
+
+    const destination = res;
+    const transform = new json2csv.Transform();
+    pipeline(source, transform, destination, (err) => {
+      if (err) console.log(err);
+    });
+  } catch (error) {
+    next(error);
+    res.send(500).send({ message: error.message });
+  }
+});
 
 export default profileRouter;
