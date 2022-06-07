@@ -10,7 +10,6 @@ import { getPdfReadableStream } from "../../lib/pdf-tools.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 import { getProductsReadableStream } from "../../lib/fs-tools.js";
 import json2csv from "json2csv";
-import { pipeline } from "stream";
 
 const profileRouter = express.Router();
 
