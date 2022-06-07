@@ -96,7 +96,6 @@ profileRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
-
 profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
   try {
     const postPicture = await ProfileModel.findByIdAndUpdate(
@@ -106,6 +105,10 @@ profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
     );
     res.send(postPicture);
   } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
 
 //--------------EXPERIENCES----------------------
 
