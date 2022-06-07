@@ -2,9 +2,11 @@ import express from "express";
 import createError from "http-errors";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
+import { pipeline } from "stream";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import ProfileModel from "./model.js";
 import ExperienceModel from "../experiences/model.js";
+import { getPdfReadableStream } from "../../lib/pdf-tools.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 
 const profileRouter = express.Router();
@@ -104,6 +106,26 @@ profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
       { new: true, runValidators: true }
     );
     res.send(postPicture);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+profileRouter.get("/:id/cv", async (req, res, next) => {
+  try {
+    const profile = await ProfileModel.findById(req.params.id);
+    if (profile) {
+      res.setHeader("Content-Type", "application/pdf");
+      const source = await getPdfReadableStream(profile);
+      const destination = res;
+
+      pipeline(source, destination, (err) => {
+        if (err) console.log(err);
+      });
+    } else {
+      console.log("this profile does not exist");
+    }
   } catch (error) {
     console.log(error);
     next(error);
