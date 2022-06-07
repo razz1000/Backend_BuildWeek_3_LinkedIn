@@ -117,7 +117,7 @@ profileRouter.get("/:id/cv", async (req, res, next) => {
     const profile = await ProfileModel.findById(req.params.id);
     if (profile) {
       res.setHeader("Content-Type", "application/pdf");
-      const source = await getPdfReadableStream(profile);
+      const source = await getPDFReadableStream(profile);
       const destination = res;
 
       pipeline(source, destination, (err) => {

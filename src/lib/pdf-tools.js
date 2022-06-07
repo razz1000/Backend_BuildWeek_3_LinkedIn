@@ -1,32 +1,30 @@
 import PdfPrinter from "pdfmake";
 import axios from "axios";
 
-const fonts = {
-  Roboto: {
-    normal: "Helvetica",
-    bold: "Helvetica-Bold",
-  },
-};
+export const getPdfReadableStream = async (profile) => {
+  const fonts = {
+    Helvetica: {
+      normal: "Helvetica",
+      bold: "Helvetica-Bold",
+    },
+  };
 
-const printer = new PdfPrinter(fonts);
+  const response = await axios.get(profile.image, {
+    responseType: "arraybuffer",
+  });
 
-export const getPDFReadableStream = async (profile) => {
-  let imagePath = {};
-  if (profile.image) {
-    const response = await axios.get(profile.image, {
-      responseType: "arraybuffer",
-    });
-    const profileImageURLPaths = profile.image.split("/");
-    const fileName = profileImageURLPaths[profileImageURLPaths.length - 1];
-    const [id, extension] = fileName.split(".");
-    const base64 = response.data.toString("base64");
-    const base64Image = `data:image/${extension};base64,${base64}`;
-    imagePath = { image: base64Image, width: 500, margin: [0, 0, 0, 40] };
-  }
-  const profileDefinition = {
+  const profileImageURLParts = profile.image.split("/");
+  const fileName = profileImageURLParts[profileImageURLParts.length - 1];
+  const [id, extension] = fileName.split(".");
+  const toBase64 = response.data.toString("base64");
+  const base64Image = `data:image/${extension};base64,${toBase64}`;
+
+  const printer = new PdfPrinter(fonts);
+
+  const docDefinition = {
     content: [
       {
-        image: imagePath,
+        image: base64Image,
         width: 150,
       },
       {
@@ -74,8 +72,7 @@ export const getPDFReadableStream = async (profile) => {
     },
   };
 
-  const pdfReadableStream = printer.createPdfKitDocument(profileDefinition, {});
-
+  const pdfReadableStream = printer.createPdfKitDocument(docDefinition, {});
   pdfReadableStream.end();
 
   return pdfReadableStream;
