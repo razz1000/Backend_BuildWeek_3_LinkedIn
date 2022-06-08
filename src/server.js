@@ -9,6 +9,10 @@ import {
 } from "./errorHandlers.js";
 import profileRouter from "./apis/profile/index.js";
 
+import postRouter from "./apis/posts/index.js";
+
+import experiencesRouter from "./apis/experiences/index.js";
+
 const server = express();
 const port = process.env.PORT || 3005;
 
@@ -33,13 +37,17 @@ const corsOptions = {
 
 // ** MIDDLEWARES ****---------------------------
 
-server.use(cors(corsOptions));
+server.use(cors());
 server.use(express.json());
 
 //** ENDPOINTS **
 
 /* server.use("/userInfo", userInfoRouter); */
 server.use("/profile", profileRouter);
+
+server.use("/posts", postRouter);
+
+server.use("/experience", experiencesRouter);
 
 // * ERROR HANDLERS **---------------------------
 
@@ -56,4 +64,3 @@ mongoose.connection.on("connected", () => {
     console.log(`Server is running on port ${port}`);
   });
 });
-//
