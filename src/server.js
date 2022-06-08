@@ -5,7 +5,7 @@ import listEndpoints from "express-list-endpoints";
 import {
   badRequestHandler,
   genericErrorHandler,
-  notFoundHandler,
+  notFoundHandler
 } from "./errorHandlers.js";
 import profileRouter from "./apis/profile/index.js";
 
@@ -16,28 +16,28 @@ import experiencesRouter from "./apis/experiences/index.js";
 const server = express();
 const port = process.env.PORTe || 3005;
 
-// const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
+const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 
-// const corsOptions = {
-//   origin: (origin, next) => {
-//     console.log("CURRENT ORIGIN: ", origin);
+const corsOptions = {
+  origin: (origin, next) => {
+    console.log("CURRENT ORIGIN: ", origin);
 
-//     if (!origin || whitelist.indexOf(origin) !== -1) {
-//       next(null, true);
-//     } else {
-//       next(
-//         createError(
-//           400,
-//           `Cors Error! your origin ${origin} is not in the list!`
-//         )
-//       );
-//     }
-//   },
-// };
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      next(null, true);
+    } else {
+      next(
+        createError(
+          400,
+          `Cors Error! your origin ${origin} is not in the list!`
+        )
+      );
+    }
+  }
+};
 
 // ** MIDDLEWARES ****---------------------------
 
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(express.json());
 
 //** ENDPOINTS **
