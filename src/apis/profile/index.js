@@ -27,7 +27,7 @@ const cloudinaryUploader = multer({
       multerNext(null, true);
     }
   },
-  limits: { fileSize: 1 * 1024 * 1024 }, // file size
+  /*   limits: { fileSize: 1 * 1024 * 1024 },  */ // file size
 }).single("image");
 
 profileRouter.get("/", async (req, res, next) => {
@@ -102,12 +102,13 @@ profileRouter.delete("/:id", async (req, res, next) => {
 
 profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
   try {
-    const postPicture = await ProfileModel.findByIdAndUpdate(
+    console.log(req.file.path);
+    const postPicture = await ExperienceModel.findByIdAndUpdate(
       req.params.id,
       { image: req.file.path },
       { new: true, runValidators: true }
     );
-
+    console.log(postPicture);
     res.send(postPicture);
   } catch (error) {
     console.log(error);
@@ -190,7 +191,7 @@ const experience = await ExperienceModel.find({
   }
 }); */
 
-// Not working 100% !
+// Not working 100%!!
 profileRouter.get("/:username/experiences", async (req, res, next) => {
   try {
     const profile = await ProfileModel.findOne({
@@ -292,7 +293,7 @@ profileRouter.put(
 );
 
 //DELETE ONE SPECIFIC EXPERIENCE
-profileRouter.put(
+profileRouter.delete(
   "/:username/experiences/:experienceId",
   async (req, res, next) => {
     try {
