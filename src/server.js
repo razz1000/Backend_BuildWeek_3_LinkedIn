@@ -14,7 +14,7 @@ import postRouter from "./apis/posts/index.js";
 import experiencesRouter from "./apis/experiences/index.js";
 
 const server = express();
-const port = process.env.PORTe || 3005;
+const port = process.env.PORT || 3005;
 
 // const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 
