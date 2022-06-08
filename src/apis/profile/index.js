@@ -17,8 +17,8 @@ const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
-      folder: "buildweek/linkdln/profile",
-    },
+      folder: "buildweek/linkdln/profile"
+    }
   }),
   fileFilter: (req, file, multerNext) => {
     if (file.mimetype !== "image/jpeg") {
@@ -26,7 +26,7 @@ const cloudinaryUploader = multer({
     } else {
       multerNext(null, true);
     }
-  },
+  }
   /*   limits: { fileSize: 1 * 1024 * 1024 },  */ // file size
 }).single("image");
 
@@ -58,7 +58,7 @@ profileRouter.post("/", async (req, res, next) => {
   try {
     const newProfile = await new ProfileModel({
       ...req.body,
-      username: generateFromEmail(req.body.email, 3),
+      username: generateFromEmail(req.body.email, 3)
     });
     const { _id } = await newProfile.save();
     res.status(201).send({ _id });
@@ -115,6 +115,26 @@ profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
     next(error);
   }
 });
+
+profileRouter.post(
+  "/:id/profileImage",
+  cloudinaryUploader,
+  async (req, res, next) => {
+    try {
+      console.log(req.file.path);
+      const postPicture = await ProfileModel.findByIdAndUpdate(
+        req.params.id,
+        { image: req.file.path },
+        { new: true, runValidators: true }
+      );
+      console.log(postPicture);
+      res.send(postPicture);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 profileRouter.get("/:id/cv", async (req, res, next) => {
   try {
@@ -195,7 +215,7 @@ const experience = await ExperienceModel.find({
 profileRouter.get("/:username/experiences", async (req, res, next) => {
   try {
     const profile = await ProfileModel.findOne({
-      username: req.params.username,
+      username: req.params.username
     });
     if (!profile)
       return next(
@@ -205,11 +225,11 @@ profileRouter.get("/:username/experiences", async (req, res, next) => {
         )
       );
     const experiences = await ExperienceModel.find({
-      profile: profile._id,
+      profile: profile._id
     }).populate({
       path: "user",
       select:
-        "name surname email bio title area image username createdAt updatedAt",
+        "name surname email bio title area image username createdAt updatedAt"
     });
     res.send(experiences);
   } catch (error) {
@@ -356,7 +376,7 @@ profileRouter.get("/:username/csv", async (req, res, next) => {
       "area",
       "profile",
       "createdAt",
-      "updatedAt",
+      "updatedAt"
     ];
     const json2csvParser = new JSON2CSVParser({ csvFields });
     const csvData = json2csvParser.parse(jsonData);
