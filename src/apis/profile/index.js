@@ -8,8 +8,8 @@ import ProfileModel from "./model.js";
 import ExperienceModel from "../experiences/model.js";
 import { getPdfReadableStream } from "../../lib/pdf-tools.js";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
-import { getProductsReadableStream } from "../../lib/fs-tools.js";
-import json2csv from "json2csv";
+import JSON2CSVParser from "json2csv/lib/JSON2CSVParser.js";
+import { profile } from "console";
 
 const profileRouter = express.Router();
 
@@ -137,24 +137,79 @@ profileRouter.get("/:id/cv", async (req, res, next) => {
 //--------------EXPERIENCES----------------------
 
 //GET Experiences with User inside.
-profileRouter.get("/:username/experiences", async (req, res, next) => {
+/* profileRouter.get("/:username/experiences", async (req, res, next) => {
   try {
-    const username = req.params.username;
-    console.log("THIS IS THE USERNAME:", username);
+    const userName = req.params.username;
+    console.log("THIS IS THE USERNAME:", userName);
 
-    const experience = await ExperienceModel.find({
-      username,
-    }).populate({
-      path: "user",
-      select:
-        "name surname email bio title area image username createdAt updatedAt",
+    const profile = await ProfileModel.find({ username: userName });
+
+    console.log("THIS IS THE PROFIEL", profile);
+
+    const userID = profile.ObjectId;
+
+    console.log("USERID:", userID);
+
+    if (profile) {
+      const experiences = await ExperienceModel.find(
+        profile._id === profile.user._id
+      );
+
+      console.log(profile);
+
+      const userID = await ExperienceModel.find(userName._id);
+      console.log("USERID", userID);
+    }
+
+const experience = await ExperienceModel.find({
+      "user.username": userName,
     });
+
+    console.log("Experience", experience);
+
+    if (profile) {
+      const experience = await ExperienceModel.find({
+        username: userName,
+      }).populate({
+        path: "user",
+        select:
+          "name surname email bio title area image username createdAt updatedAt",
+      });
+      console.log("EXPERIENCE:", experience);
+    }
 
     if (!experience)
       return next(
         createError(404, `experience with id ${req.params.userName} not found!`)
       );
-    res.send(experience);
+    res.send(experience); 
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+}); */
+
+// Not working 100% !
+profileRouter.get("/:username/experiences", async (req, res, next) => {
+  try {
+    const profile = await ProfileModel.findOne({
+      username: req.params.username,
+    });
+    if (!profile)
+      return next(
+        createError(
+          404,
+          `Profile with username ${req.params.username} not found!`
+        )
+      );
+    const experiences = await ExperienceModel.find({
+      profile: profile._id,
+    }).populate({
+      path: "user",
+      select:
+        "name surname email bio title area image username createdAt updatedAt",
+    });
+    res.send(experiences);
   } catch (error) {
     console.log(error);
     next(error);
@@ -283,38 +338,35 @@ profileRouter.post(
     }
   }
 );
-
-//GET Experiences IN A CSV
-
-profileRouter.get("/:username/experiences/csv", async (req, res, next) => {
+//GET AS CSV
+profileRouter.get("/:username/csv", async (req, res, next) => {
   try {
+    const username = req.params.username;
+    const experience = await ExperienceModel.find({ username });
+    const jsonData = JSON.parse(JSON.stringify(experience));
+    console.log("JSONDATA: ", jsonData);
+    const csvFields = [
+      "role",
+      "company",
+      "startDate",
+      "endDate",
+      "description",
+      "area",
+      "profile",
+      "createdAt",
+      "updatedAt",
+    ];
+    const json2csvParser = new JSON2CSVParser({ csvFields });
+    const csvData = json2csvParser.parse(jsonData);
     res.setHeader(
-      "Content-Disposition",
+      "Content-disposition",
       "attachment; filename=experiences.csv"
     );
-    const username = req.params.username;
-    console.log("THIS IS THE USERNAME:", username);
-
-    const experience = await ProfileModel.findOne({
-      username,
-    });
-    console.log("EXPERIENCES: ", experience);
-
-    const index = experience.findIndex(
-      (e) => e.username === req.params.username
-    );
-    console.log("INDEX OF  :", index);
-    const actualExperience = experience[index];
-    const source = await getProductsReadableStream(actualExperience);
-
-    const destination = res;
-    const transform = new json2csv.Transform();
-    pipeline(source, transform, destination, (err) => {
-      if (err) console.log(err);
-    });
+    res.set("Content-Type", "text/csv");
+    res.end(csvData);
   } catch (error) {
+    console.log(error);
     next(error);
-    res.send(500).send({ message: error.message });
   }
 });
 
