@@ -107,6 +107,7 @@ profileRouter.post("/:id/image", cloudinaryUploader, async (req, res, next) => {
       { image: req.file.path },
       { new: true, runValidators: true }
     );
+
     res.send(postPicture);
   } catch (error) {
     console.log(error);
