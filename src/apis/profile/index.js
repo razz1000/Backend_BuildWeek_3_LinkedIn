@@ -45,7 +45,7 @@ profileRouter.get("/:username", async (req, res, next) => {
     const userName = req.params.username;
     console.log("USERNAME:", userName);
 
-    const profile = await ProfileModel.find({ username: userName });
+    const profile = await ProfileModel.findOne({ username: userName });
     if (!profile)
       return next(
         createError(404, `Profile with id ${req.params.username} not found!`)
