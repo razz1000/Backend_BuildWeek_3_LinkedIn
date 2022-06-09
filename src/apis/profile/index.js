@@ -374,8 +374,22 @@ profileRouter.post(
 //GET AS CSV
 profileRouter.get("/:username/csv", async (req, res, next) => {
   try {
-    const username = req.params.username;
-    const experience = await ExperienceModel.find({ username });
+    const userName = req.params.username;
+    console.log("username:", userName);
+
+    const profile = await ProfileModel.find({
+      username: userName,
+    });
+    console.log("profile Name :; ", profile[0].name);
+
+    const profileID = profile[0]._id.toString();
+    console.log("ProfileID", profileID);
+
+    const experience = await ExperienceModel.find({
+      user: profileID,
+    });
+    console.log("EXPERIECNCE", experience /* .user._id */);
+
     const jsonData = JSON.parse(JSON.stringify(experience));
     console.log("JSONDATA: ", jsonData);
     const csvFields = [
