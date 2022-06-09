@@ -220,6 +220,9 @@ profileRouter.get("/:username/experiences", async (req, res, next) => {
     const profile = await ProfileModel.findOne({
       username: req.params.username,
     });
+    console.log("PROFILE:", profile);
+    console.log("ProfileUID;", profile._id);
+
     if (!profile)
       return next(
         createError(
@@ -227,6 +230,11 @@ profileRouter.get("/:username/experiences", async (req, res, next) => {
           `Profile with username ${req.params.username} not found!`
         )
       );
+    // If user , then we want to find all experiences , for that particulat user.
+    // HOW: In profile we have the UserID, which is also in the Experiences.
+    // So, we have to first log the UserID from Profile.
+    // Then make a find all Experiences that have that specific UserID in the body.
+
     const experiences = await ExperienceModel.find({
       profile: profile._id,
     }).populate({
