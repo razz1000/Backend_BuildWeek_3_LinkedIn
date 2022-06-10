@@ -17,16 +17,16 @@ const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
-      folder: "buildweek/linkdln/profile"
-    }
+      folder: "buildweek/linkdln/profile",
+    },
   }),
   fileFilter: (req, file, multerNext) => {
-    if (file.mimetype !== "image/jpeg") {
-      multerNext(createError(400, "Only jpeg allowed!"));
+    if (file.mimetype !== "image/jpeg" && file.mimetype !== "image/png") {
+      multerNext(createError(400, "Only jpeg and png are allowed!"));
     } else {
       multerNext(null, true);
     }
-  }
+  },
   /*   limits: { fileSize: 1 * 1024 * 1024 },  */ // file size
 }).single("image");
 
@@ -40,12 +40,15 @@ profileRouter.get("/", async (req, res, next) => {
   }
 });
 
-profileRouter.get("/:id", async (req, res, next) => {
+profileRouter.get("/:username", async (req, res, next) => {
   try {
-    const profile = await ProfileModel.findById(req.params.id);
+    const userName = req.params.username;
+    console.log("USERNAME:", userName);
+
+    const profile = await ProfileModel.findOne({ username: userName });
     if (!profile)
       return next(
-        createError(404, `Profile with id ${req.params.id} not found!`)
+        createError(404, `Profile with id ${req.params.username} not found!`)
       );
     res.send(profile);
   } catch (error) {
@@ -58,7 +61,7 @@ profileRouter.post("/", async (req, res, next) => {
   try {
     const newProfile = await new ProfileModel({
       ...req.body,
-      username: generateFromEmail(req.body.email, 3)
+      username: generateFromEmail(req.body.email, 3),
     });
     const { _id } = await newProfile.save();
     res.status(201).send({ _id });
@@ -215,8 +218,11 @@ const experience = await ExperienceModel.find({
 profileRouter.get("/:username/experiences", async (req, res, next) => {
   try {
     const profile = await ProfileModel.findOne({
-      username: req.params.username
+      username: req.params.username,
     });
+    console.log("PROFILE:", profile);
+    console.log("ProfileUID;", profile._id);
+
     if (!profile)
       return next(
         createError(
@@ -224,12 +230,17 @@ profileRouter.get("/:username/experiences", async (req, res, next) => {
           `Profile with username ${req.params.username} not found!`
         )
       );
+    // If user , then we want to find all experiences , for that particulat user.
+    // HOW: In profile we have the UserID, which is also in the Experiences.
+    // So, we have to first log the UserID from Profile.
+    // Then make a find all Experiences that have that specific UserID in the body.
+
     const experiences = await ExperienceModel.find({
-      profile: profile._id
+      profile: profile._id,
     }).populate({
       path: "user",
       select:
-        "name surname email bio title area image username createdAt updatedAt"
+        "name surname email bio title area image username createdAt updatedAt",
     });
     res.send(experiences);
   } catch (error) {
@@ -363,8 +374,22 @@ profileRouter.post(
 //GET AS CSV
 profileRouter.get("/:username/csv", async (req, res, next) => {
   try {
-    const username = req.params.username;
-    const experience = await ExperienceModel.find({ username });
+    const userName = req.params.username;
+    console.log("username:", userName);
+
+    const profile = await ProfileModel.find({
+      username: userName,
+    });
+    console.log("profile Name :; ", profile[0].name);
+
+    const profileID = profile[0]._id.toString();
+    console.log("ProfileID", profileID);
+
+    const experience = await ExperienceModel.find({
+      user: profileID,
+    });
+    console.log("EXPERIECNCE", experience /* .user._id */);
+
     const jsonData = JSON.parse(JSON.stringify(experience));
     console.log("JSONDATA: ", jsonData);
     const csvFields = [
@@ -376,7 +401,7 @@ profileRouter.get("/:username/csv", async (req, res, next) => {
       "area",
       "profile",
       "createdAt",
-      "updatedAt"
+      "updatedAt",
     ];
     const json2csvParser = new JSON2CSVParser({ csvFields });
     const csvData = json2csvParser.parse(jsonData);

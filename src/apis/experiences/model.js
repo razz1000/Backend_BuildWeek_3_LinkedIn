@@ -11,7 +11,7 @@ const experiencesSchema = new Schema(
     description: { type: String, required: true },
     area: { type: String, required: true },
     user: [{ type: Schema.Types.ObjectId, ref: "Profile" }],
-    image: { type: String, required: true },
+    image: { type: String },
   },
   { timestamps: true }
 );

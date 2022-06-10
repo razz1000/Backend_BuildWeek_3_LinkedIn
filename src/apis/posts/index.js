@@ -15,8 +15,8 @@ const cloudinaryUploader = multer({
     },
   }),
   fileFilter: (req, file, multerNext) => {
-    if (file.mimetype !== "image/jpeg") {
-      multerNext(createError(400, "Only jpeg allowed!"));
+    if (file.mimetype !== "image/jpeg" && file.mimetype !== "image/png") {
+      multerNext(createError(400, "Only jpeg and png are allowed!"));
     } else {
       multerNext(null, true);
     }
