@@ -10,4 +10,4 @@
 <p>- MongDB</p>
 <p>- Heroku</p>
 <img src="./Screenshot1.png">
-<img src="./Screenshot3.png">
+<img src="./Screenshot2.png">
