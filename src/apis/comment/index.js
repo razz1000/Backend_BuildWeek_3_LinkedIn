@@ -5,13 +5,13 @@ import CommentModel from "./model.js";
 const commentRouter = express.Router();
 
 //GET /api/posts/{id}/comment
-commentRouter.get("/:commentId", async (req, res, next) => {
+commentRouter.get("/:id", async (req, res, next) => {
   try {
-    const comment = await CommentModel.find({ post: req.params.commentId });
-    if (!comment)
-      return next(
-        createError(404, `Comment with id ${req.params.commentId} not found!`)
-      );
+    const comment = await CommentModel.find({ post: req.params.id }).populate({
+      path: "post", // populate the post field
+      select: "text username image", // only select the title field
+    });
+    console.log("COMMENT", comment);
     res.send(comment);
   } catch (error) {
     next(error);
@@ -19,10 +19,54 @@ commentRouter.get("/:commentId", async (req, res, next) => {
 });
 
 //POST /api/posts/{id}/comment
-commentRouter.post("/:commentId", async (req, res, next) => {
+commentRouter.post("/:id", async (req, res, next) => {
   try {
     const comment = await CommentModel.create(req.body);
-    res.send(comment);
+    comment.post = req.params.id;
+    const savedComment = await comment.save();
+    res.send(savedComment);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//Modify posted comment
+commentRouter.put("/:commentId", async (req, res, next) => {
+  try {
+    const comment = await CommentModel.findByIdAndUpdate(
+      req.params.commentId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (comment) {
+      res.send(comment);
+    } else {
+      next(
+        createError(
+          404,
+          `Comment with the id ${req.params.commentId} not found`
+        )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+//Delete posted comment
+commentRouter.delete("/:commentId", async (req, res, next) => {
+  try {
+    const comment = await CommentModel.findByIdAndDelete(req.params.commentId);
+    if (comment) {
+      res.status(204).send();
+    } else {
+      next(
+        createError(
+          404,
+          `Comment with the id ${req.params.commentId} not found`
+        )
+      );
+    }
   } catch (error) {
     next(error);
   }
